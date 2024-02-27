@@ -2,7 +2,6 @@ import { Address } from '@fuel-ts/address';
 import { BaseAssetId } from '@fuel-ts/address/configs';
 import type { BN } from '@fuel-ts/math';
 import { bn } from '@fuel-ts/math';
-import { ASSET_A, ASSET_B } from '@fuel-ts/utils/test-utils';
 
 import { Account } from './account';
 import { FUEL_NETWORK_URL } from './configs';
@@ -28,7 +27,11 @@ beforeAll(async () => {
  * @group node
  */
 describe('Account', () => {
-  const assets = [ASSET_A, ASSET_B, BaseAssetId];
+  const assets = [
+    '0x0101010101010101010101010101010101010101010101010101010101010101',
+    '0x0202020202020202020202020202020202020202020202020202020202020202',
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+  ];
 
   it('should create account using an address, with a provider', () => {
     const account = new Account(
@@ -106,7 +109,7 @@ describe('Account', () => {
     const resourcesToSpend = await account.getResourcesToSpend([
       {
         amount: bn(2),
-        assetId: ASSET_A,
+        assetId: '0x0101010101010101010101010101010101010101010101010101010101010101',
       },
     ]);
     expect(resourcesToSpend[0].amount.gt(2)).toBeTruthy();
@@ -121,7 +124,7 @@ describe('Account', () => {
     const resourcesToSpend = await account.getResourcesToSpend([
       {
         amount: 0.9,
-        assetId: ASSET_A,
+        assetId: '0x0101010101010101010101010101010101010101010101010101010101010101',
       },
     ]);
     expect(resourcesToSpend[0].amount.gte(1)).toBeTruthy();
@@ -244,7 +247,7 @@ describe('Account', () => {
     const quantities: CoinQuantity[] = [
       {
         amount: bn(10),
-        assetId: ASSET_A,
+        assetId: '0x0101010101010101010101010101010101010101010101010101010101010101',
       },
     ];
     const fee = bn(29);
@@ -420,9 +423,12 @@ describe('Account', () => {
   });
 
   it('can exclude IDs when getResourcesToSpend is called', async () => {
+    const assetIdA = '0x0101010101010101010101010101010101010101010101010101010101010101';
+    const assetIdB = '0x0202020202020202020202020202020202020202020202020202020202020202';
+
     const user = await generateTestWallet(provider, [
-      [500_000, ASSET_A],
-      [500_000, ASSET_B],
+      [500_000, assetIdA],
+      [500_000, assetIdB],
       [500_000, BaseAssetId],
     ]);
 
@@ -430,13 +436,13 @@ describe('Account', () => {
 
     // Test excludes the UTXO where the assetIdA gets added to the senders wallet
     await expect(
-      user.getResourcesToSpend([[1, ASSET_A, 500_000]], { utxos: [coins[0].id] })
+      user.getResourcesToSpend([[1, assetIdA, 500_000]], { utxos: [coins[0].id] })
     ).rejects.toThrow(/not enough coins to fit the target/);
   });
 
   it('can transfer multiple types of coins to multiple destinations', async () => {
-    const assetIdA = ASSET_A;
-    const assetIdB = ASSET_B;
+    const assetIdA = '0x0101010101010101010101010101010101010101010101010101010101010101';
+    const assetIdB = '0x0202020202020202020202020202020202020202020202020202020202020202';
     const amount = 1;
 
     const request = new ScriptTransactionRequest({ gasLimit: 1000000, gasPrice });

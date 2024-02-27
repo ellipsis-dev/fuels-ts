@@ -3,7 +3,6 @@ import { BaseAssetId, ZeroBytes32 } from '@fuel-ts/address/configs';
 import { bn } from '@fuel-ts/math';
 import type { InputCoin, InputMessage } from '@fuel-ts/transactions';
 import { InputType, OutputType } from '@fuel-ts/transactions';
-import { ASSET_A } from '@fuel-ts/utils/test-utils';
 
 import type {
   CoinTransactionRequestInput,
@@ -54,7 +53,7 @@ export const MOCK_REQUEST_COIN_INPUT: CoinTransactionRequestInput = {
   type: InputType.Coin,
   id: ZeroBytes32,
   amount: bn(100),
-  assetId: ASSET_A,
+  assetId: '0x0101010101010101010101010101010101010101010101010101010101010101',
   owner: getRandomB256(),
   txPointer: '0x00000000000000000000000000000000',
   witnessIndex: 0,
@@ -65,7 +64,7 @@ export const MOCK_REQUEST_PREDICATE_INPUT: CoinTransactionRequestInput = {
   type: InputType.Coin,
   id: ZeroBytes32,
   amount: bn(100),
-  assetId: ASSET_A,
+  assetId: '0x0101010101010101010101010101010101010101010101010101010101010101',
   owner: getRandomB256(),
   txPointer: '0x00000000000000000000000000000000',
   witnessIndex: 0,
@@ -94,7 +93,7 @@ export const MOCK_REQUEST_COIN_OUTPUT: CoinTransactionRequestOutput = {
   type: OutputType.Coin,
   to: getRandomB256(),
   amount: 100,
-  assetId: ASSET_A,
+  assetId: '0x0101010101010101010101010101010101010101010101010101010101010101',
 };
 export const MOCK_REQUEST_CONTRACT_OUTPUT: ContractTransactionRequestOutput = {
   type: OutputType.Contract,
@@ -104,5 +103,5 @@ export const MOCK_REQUEST_CONTRACT_OUTPUT: ContractTransactionRequestOutput = {
 export const MOCK_REQUEST_CHANGE_OUTPUT: ChangeTransactionRequestOutput = {
   type: OutputType.Change,
   to: getRandomB256(),
-  assetId: ASSET_A,
+  assetId: '0x0101010101010101010101010101010101010101010101010101010101010101',
 };

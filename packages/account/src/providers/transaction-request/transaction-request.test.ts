@@ -2,7 +2,6 @@ import { Address } from '@fuel-ts/address';
 import { BaseAssetId } from '@fuel-ts/address/configs';
 import { bn, toNumber } from '@fuel-ts/math';
 import { TransactionType } from '@fuel-ts/transactions';
-import { ASSET_A, ASSET_B } from '@fuel-ts/utils/test-utils';
 
 import type { CoinQuantity } from '../coin-quantity';
 
@@ -15,6 +14,9 @@ import { transactionRequestify } from './utils';
  * @group node
  */
 describe('TransactionRequest', () => {
+  const assetIdA = '0x0101010101010101010101010101010101010101010101010101010101010101';
+  const assetIdB = '0x0202020202020202020202020202020202020202020202020202020202020202';
+
   describe('transactionRequestify', () => {
     it('should keep data from input in transaction request created', () => {
       const script = Uint8Array.from([1, 2, 3, 4]);
@@ -68,19 +70,19 @@ describe('TransactionRequest', () => {
       const amount1 = 100;
       const amount2 = 300;
 
-      transactionRequest.addCoinOutput(address1, amount1, ASSET_B);
-      transactionRequest.addCoinOutput(address2, amount2, ASSET_A);
+      transactionRequest.addCoinOutput(address1, amount1, assetIdB);
+      transactionRequest.addCoinOutput(address2, amount2, assetIdA);
 
       const result = transactionRequest.getCoinOutputsQuantities();
 
       expect(result).toEqual([
         {
           amount: bn(amount1),
-          assetId: ASSET_B,
+          assetId: assetIdB,
         },
         {
           amount: bn(amount2),
-          assetId: ASSET_A,
+          assetId: assetIdA,
         },
       ]);
     });
@@ -105,16 +107,16 @@ describe('TransactionRequest', () => {
 
       const quantities: CoinQuantity[] = [
         { assetId: BaseAssetId, amount: amountBase },
-        { assetId: ASSET_A, amount: amountA },
-        { assetId: ASSET_B, amount: amountB },
+        { assetId: assetIdA, amount: amountA },
+        { assetId: assetIdB, amount: amountB },
       ];
 
       transactionRequest.fundWithFakeUtxos(quantities);
 
       const inputs = transactionRequest.inputs as CoinTransactionRequestInput[];
 
-      const inputA = inputs.find((i) => i.assetId === ASSET_A);
-      const inputB = inputs.find((i) => i.assetId === ASSET_B);
+      const inputA = inputs.find((i) => i.assetId === assetIdA);
+      const inputB = inputs.find((i) => i.assetId === assetIdB);
       const inputBase = inputs.find((i) => i.assetId === BaseAssetId);
 
       expect(inputA?.amount).toEqual(bn(700));

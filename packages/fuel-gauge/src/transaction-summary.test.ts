@@ -1,5 +1,4 @@
 import { generateTestWallet } from '@fuel-ts/account/test-utils';
-import { ASSET_A, ASSET_B } from '@fuel-ts/utils/test-utils';
 import type {
   WalletUnlocked,
   TransactionResultReceipt,
@@ -171,6 +170,9 @@ describe('TransactionSummary', () => {
   describe('Transfer Operations', () => {
     const setupContract = getSetupContract(FuelGaugeProjectsEnum.TOKEN_CONTRACT);
 
+    const assetId1 = '0x0101010101010101010101010101010101010101010101010101010101010101';
+    const assetId2 = '0x0202020202020202020202020202020202020202020202020202020202020202';
+
     beforeAll(async () => {
       provider = await Provider.create(FUEL_NETWORK_URL);
     });
@@ -226,14 +228,14 @@ describe('TransactionSummary', () => {
     it('should ensure transfer operation is assembled (ACCOUNT TRANSFER TO CONTRACT)', async () => {
       const wallet = await generateTestWallet(provider, [
         [10_000, BaseAssetId],
-        [10_000, ASSET_A],
+        [10_000, assetId1],
       ]);
 
       const contract1 = await setupContract({ cache: false });
 
       const amount = 234;
 
-      const tx1 = await wallet.transferToContract(contract1.id, amount, ASSET_A);
+      const tx1 = await wallet.transferToContract(contract1.id, amount, assetId1);
 
       const { operations } = await tx1.waitForResult();
 
@@ -244,7 +246,7 @@ describe('TransactionSummary', () => {
         sender: wallet.address,
         fromType: AddressType.account,
         toType: AddressType.contract,
-        recipients: [{ address: contract1.id, quantities: [{ amount, assetId: ASSET_A }] }],
+        recipients: [{ address: contract1.id, quantities: [{ amount, assetId: assetId1 }] }],
       });
     });
 
@@ -281,15 +283,15 @@ describe('TransactionSummary', () => {
     it('should ensure transfer operations are assembled (CONTRACT TRANSFER TO ACCOUNTS)', async () => {
       const wallet = await generateTestWallet(provider, [
         [10_000, BaseAssetId],
-        [10_000, ASSET_A],
-        [10_000, ASSET_B],
+        [10_000, assetId1],
+        [10_000, assetId2],
       ]);
 
       const senderContract = await setupContract({ cache: false });
       senderContract.account = wallet;
       const fundAmount = 5_000;
 
-      const assets = [BaseAssetId, ASSET_A, ASSET_B];
+      const assets = [BaseAssetId, assetId1, assetId2];
       for await (const asset of assets) {
         const tx = await wallet.transferToContract(senderContract.id, fundAmount, asset);
         await tx.waitForResult();
@@ -298,8 +300,8 @@ describe('TransactionSummary', () => {
       const transferData1 = {
         address: Wallet.generate({ provider }).address,
         quantities: [
-          { amount: 543, assetId: ASSET_A },
-          { amount: 400, assetId: ASSET_B },
+          { amount: 543, assetId: assetId1 },
+          { amount: 400, assetId: assetId2 },
           { amount: 123, assetId: BaseAssetId },
         ],
       };
@@ -307,7 +309,7 @@ describe('TransactionSummary', () => {
         address: Wallet.generate({ provider }).address,
         quantities: [
           { amount: 12, assetId: BaseAssetId },
-          { amount: 612, assetId: ASSET_B },
+          { amount: 612, assetId: assetId2 },
         ],
       };
 
@@ -375,15 +377,15 @@ describe('TransactionSummary', () => {
     it('should ensure transfer operations are assembled (CONTRACT TRANSFER TO CONTRACTS)', async () => {
       const wallet = await generateTestWallet(provider, [
         [10_000, BaseAssetId],
-        [10_000, ASSET_A],
-        [10_000, ASSET_B],
+        [10_000, assetId1],
+        [10_000, assetId2],
       ]);
 
       const senderContract = await setupContract({ cache: false });
       senderContract.account = wallet;
       const fundAmount = 5_000;
 
-      const assets = [BaseAssetId, ASSET_A, ASSET_B];
+      const assets = [BaseAssetId, assetId1, assetId2];
       for await (const asset of assets) {
         const tx = await wallet.transferToContract(senderContract.id, fundAmount, asset);
         await tx.waitForResult();
@@ -395,15 +397,15 @@ describe('TransactionSummary', () => {
       const transferData1 = {
         address: contractRecipient1.id,
         quantities: [
-          { amount: 300, assetId: ASSET_A },
-          { amount: 400, assetId: ASSET_B },
+          { amount: 300, assetId: assetId1 },
+          { amount: 400, assetId: assetId2 },
         ],
       };
       const transferData2 = {
         address: contractRecipient2.id,
         quantities: [
-          { amount: 500, assetId: ASSET_A },
-          { amount: 700, assetId: ASSET_B },
+          { amount: 500, assetId: assetId1 },
+          { amount: 700, assetId: assetId2 },
           { amount: 100, assetId: BaseAssetId },
         ],
       };
@@ -439,27 +441,27 @@ describe('TransactionSummary', () => {
     it('should ensure transfer operations are assembled (CUSTOM SCRIPT TRANSFER)', async () => {
       const wallet = await generateTestWallet(provider, [
         [10_000, BaseAssetId],
-        [10_000, ASSET_A],
-        [10_000, ASSET_B],
+        [10_000, assetId1],
+        [10_000, assetId2],
       ]);
 
       const recipient1Data = {
         address: Wallet.generate({ provider }).address,
-        quantities: [{ amount: 250, assetId: ASSET_A }],
+        quantities: [{ amount: 250, assetId: assetId1 }],
       };
 
       const recipient2Data = {
         address: Wallet.generate({ provider }).address,
         quantities: [
-          { amount: 300, assetId: ASSET_A },
-          { amount: 400, assetId: ASSET_B },
+          { amount: 300, assetId: assetId1 },
+          { amount: 400, assetId: assetId2 },
         ],
       };
       const recipient3Data = {
         address: Wallet.generate({ provider }).address,
         quantities: [
-          { amount: 500, assetId: ASSET_A },
-          { amount: 700, assetId: ASSET_B },
+          { amount: 500, assetId: assetId1 },
+          { amount: 700, assetId: assetId2 },
           { amount: 100, assetId: BaseAssetId },
         ],
       };

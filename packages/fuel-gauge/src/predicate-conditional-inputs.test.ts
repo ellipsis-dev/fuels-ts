@@ -1,5 +1,4 @@
 import { generateTestWallet } from '@fuel-ts/account/test-utils';
-import { ASSET_A, ASSET_B } from '@fuel-ts/utils/test-utils';
 import type { BN } from 'fuels';
 import {
   Provider,
@@ -17,6 +16,8 @@ import { FuelGaugeProjectsEnum, getFuelGaugeForcProject } from '../test/fixtures
  * @group node
  */
 describe('PredicateConditionalInputs', () => {
+  const assetIdA = '0x0101010101010101010101010101010101010101010101010101010101010101';
+  const assetIdB = '0x0202020202020202020202020202020202020202020202020202020202020202';
   let gasPrice: BN;
 
   const { binHexlified: predicateBytecode, abiContents: abiJSON } = getFuelGaugeForcProject(
@@ -39,7 +40,7 @@ describe('PredicateConditionalInputs', () => {
 
     const adminWallet = await generateTestWallet(provider, [
       [500_000, BaseAssetId],
-      [500_000, ASSET_A],
+      [500_000, assetIdA],
     ]);
 
     const predicate = new Predicate(predicateBytecode, provider, abiJSON, {
@@ -47,7 +48,7 @@ describe('PredicateConditionalInputs', () => {
     });
 
     // transfer asset A to predicate so it can transfer to alice
-    const tx1 = await adminWallet.transfer(predicate.address, 100_000, ASSET_A, {
+    const tx1 = await adminWallet.transfer(predicate.address, 100_000, assetIdA, {
       gasPrice,
       gasLimit: 10_000,
     });
@@ -68,7 +69,7 @@ describe('PredicateConditionalInputs', () => {
     });
 
     // fetch predicate resources to spend
-    const predicateResoruces = await predicate.getResourcesToSpend([[amountToTransfer, ASSET_A]]);
+    const predicateResoruces = await predicate.getResourcesToSpend([[amountToTransfer, assetIdA]]);
 
     // fetch Alice resources to spend
     const aliceResources = await aliceWallet.getResourcesToSpend([[request.gasLimit, BaseAssetId]]);
@@ -76,19 +77,19 @@ describe('PredicateConditionalInputs', () => {
     request
       .addResources(aliceResources)
       .addPredicateResources(predicateResoruces, predicate)
-      .addCoinOutput(aliceWallet.address, amountToTransfer, ASSET_A);
+      .addCoinOutput(aliceWallet.address, amountToTransfer, assetIdA);
 
     const aliceBaseAssetBefore = await aliceWallet.getBalance();
-    const aliceAssetABefore = await aliceWallet.getBalance(ASSET_A);
-    const predicateAssetABefore = await predicate.getBalance(ASSET_A);
+    const aliceAssetABefore = await aliceWallet.getBalance(assetIdA);
+    const predicateAssetABefore = await predicate.getBalance(assetIdA);
 
     const tx3 = await aliceWallet.sendTransaction(request);
 
     await tx3.waitForResult();
 
     const aliceBaseAssetAfter = await aliceWallet.getBalance();
-    const aliceAssetAAfter = await aliceWallet.getBalance(ASSET_A);
-    const predicateAssetAAfter = await predicate.getBalance(ASSET_A);
+    const aliceAssetAAfter = await aliceWallet.getBalance(assetIdA);
+    const predicateAssetAAfter = await predicate.getBalance(assetIdA);
 
     // ensure Alice received the expected amount of asset
     expect(bn(aliceAssetAAfter).toNumber()).toBe(
@@ -115,8 +116,8 @@ describe('PredicateConditionalInputs', () => {
 
     const adminWallet = await generateTestWallet(provider, [
       [500_000, BaseAssetId],
-      [500_000, ASSET_A],
-      [500_000, ASSET_B],
+      [500_000, assetIdA],
+      [500_000, assetIdB],
     ]);
 
     const predicate = new Predicate(predicateBytecode, provider, abiJSON, {
@@ -124,7 +125,7 @@ describe('PredicateConditionalInputs', () => {
     });
 
     // transfer asset A to predicate so it can transfer to alice
-    const tx1 = await adminWallet.transfer(predicate.address, 2_000, ASSET_A, {
+    const tx1 = await adminWallet.transfer(predicate.address, 2_000, assetIdA, {
       gasPrice,
       gasLimit: 10_000,
     });
@@ -141,7 +142,7 @@ describe('PredicateConditionalInputs', () => {
 
     // transfer asset B to Alice so it can add symbolic UTXOs to the transaction
     // inputs in order to the predicate validate her inputs in the transaction.
-    const tx3 = await adminWallet.transfer(aliceWallet.address, 2_000, ASSET_B, {
+    const tx3 = await adminWallet.transfer(aliceWallet.address, 2_000, assetIdB, {
       gasPrice,
       gasLimit: 10_000,
     });
@@ -155,7 +156,7 @@ describe('PredicateConditionalInputs', () => {
 
     // predicate will pay the fee so it will need the base asset
     const predicateResources = await predicate.getResourcesToSpend([
-      [amountToTransfer, ASSET_A],
+      [amountToTransfer, assetIdA],
       [1000, BaseAssetId],
     ]);
 
@@ -163,28 +164,28 @@ describe('PredicateConditionalInputs', () => {
      * we need to add Alice resources in order to the predicate validates that she have inputs
      * in the transaction and returns true. These resources will be returned to alice.
      */
-    const aliceResources = await aliceWallet.getResourcesToSpend([[1, ASSET_B]]);
+    const aliceResources = await aliceWallet.getResourcesToSpend([[1, assetIdB]]);
 
     request
       .addResources(aliceResources)
       .addPredicateResources(predicateResources, predicate)
-      .addCoinOutput(aliceWallet.address, amountToTransfer, ASSET_A);
+      .addCoinOutput(aliceWallet.address, amountToTransfer, assetIdA);
 
-    const aliceAssetABefore = await aliceWallet.getBalance(ASSET_A);
-    const predicateAssetABefore = await predicate.getBalance(ASSET_A);
+    const aliceAssetABefore = await aliceWallet.getBalance(assetIdA);
+    const predicateAssetABefore = await predicate.getBalance(assetIdA);
 
     const aliceBaseAssetBefore = await aliceWallet.getBalance();
-    const aliceAssetBBefore = await aliceWallet.getBalance(ASSET_B);
+    const aliceAssetBBefore = await aliceWallet.getBalance(assetIdB);
 
     const tx4 = await aliceWallet.sendTransaction(request);
 
     await tx4.waitForResult();
 
-    const aliceAssetAAfter = await aliceWallet.getBalance(ASSET_A);
-    const predicateAssetAAfter = await predicate.getBalance(ASSET_A);
+    const aliceAssetAAfter = await aliceWallet.getBalance(assetIdA);
+    const predicateAssetAAfter = await predicate.getBalance(assetIdA);
 
     const aliceBaseAssetAfter = await aliceWallet.getBalance();
-    const aliceAssetBAfter = await aliceWallet.getBalance(ASSET_B);
+    const aliceAssetBAfter = await aliceWallet.getBalance(assetIdB);
 
     expect(bn(aliceAssetAAfter).toNumber()).toBe(
       bn(aliceAssetABefore).add(bn(amountToTransfer)).toNumber()
