@@ -642,6 +642,8 @@ export abstract class BaseTransactionRequest implements BaseTransactionRequestLi
     this.inputs.forEach((i) => {
       let correspondingInput: TransactionRequestInput | undefined;
       switch (i.type) {
+        case InputType.Contract:
+          return;
         case InputType.Coin:
           correspondingInput = inputs.find((x) => x.type === InputType.Coin && x.owner === i.owner);
           break;
@@ -651,7 +653,7 @@ export abstract class BaseTransactionRequest implements BaseTransactionRequestLi
           );
           break;
         default:
-          return;
+          break;
       }
       if (
         correspondingInput &&
