@@ -22,8 +22,7 @@
           "AssetId": "string",
           "ContractId": "string",
           "Salt": "string",
-          "Nonce": "string",
-          "Tai64Timestamp": "string"
+          "Nonce": "string"
         },
         "useTypeImports": true,
         "nonOptionalTypename": true,
